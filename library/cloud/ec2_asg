@@ -190,6 +190,7 @@ def create_autoscaling_group(connection, module):
     if not as_groups:
         if not vpc_zone_identifier and not availability_zones:
             availability_zones = module.params['availability_zones'] = [zone.name for zone in ec2_connection.get_all_zones()]
+
         enforce_required_arguments(module)
         launch_configs = connection.get_all_launch_configurations(names=[launch_config_name])
         ag = AutoScalingGroup(
