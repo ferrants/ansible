@@ -146,6 +146,8 @@ def create_launch_config(connection, module):
     spot_price = module.params.get('spot_price')
     instance_monitoring = module.params.get('instance_monitoring')
     instance_profile_name = module.params.get('instance_profile_name') or None
+    ebs_optimized = module.params.get('ebs_optimized')
+    associate_public_ip_address = module.params.get('associate_public_ip_address')
     bdm = BlockDeviceMapping()
 
     if volumes:
@@ -167,7 +169,9 @@ def create_launch_config(connection, module):
         instance_type=instance_type,
         spot_price=spot_price,
         instance_monitoring=instance_monitoring,
-        instance_profile_name=instance_profile_name)
+        instance_profile_name=instance_profile_name,
+        ebs_optimized=ebs_optimized,
+        associate_public_ip_address=associate_public_ip_address)
 
     launch_configs = connection.get_all_launch_configurations(names=[name])
     changed = False
@@ -183,7 +187,8 @@ def create_launch_config(connection, module):
     module.exit_json(changed=changed, name=result.name, created_time=str(result.created_time),
                      image_id=result.image_id, arn=result.launch_configuration_arn,
                      security_groups=result.security_groups, instance_type=instance_type,
-                     instance_profile_name=instance_profile_name)
+                     instance_profile_name=instance_profile_name, ebs_optimized=ebs_optimized,
+                     associate_public_ip_address=associate_public_ip_address)
 
 
 def delete_launch_config(connection, module):
@@ -211,6 +216,8 @@ def main():
             spot_price=dict(type='float'),
             instance_monitoring=dict(default=False, type='bool'),
             instance_profile_name=dict(type='str'),
+            ebs_optimized=dict(type='bool', default=False),
+            associate_public_ip_address=dict(type='bool', default=False),
         )
     )
 
