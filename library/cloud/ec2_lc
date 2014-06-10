@@ -84,6 +84,18 @@ options:
     required: false
     default: None
     aliases: []
+  ebs_optimized:
+    description:
+      - Ebs optimized flag value of this launch configuration
+    required: false
+    default: false
+    aliases: []
+  associate_public_ip_address:
+    description:
+      - Choose whether to assign public IP addresses to instances launched with this configuration.
+    required: false
+    default: false
+    aliases: []
 extends_documentation_fragment: aws
 """
 
