@@ -175,7 +175,6 @@ def create_autoscaling_group(connection, module):
     if not as_groups:
         if not vpc_zone_identifier and not availability_zones:
             availability_zones = module.params['availability_zones'] = [zone.name for zone in ec2_connection.get_all_zones()]
-
         enforce_required_arguments(module)
         launch_configs = connection.get_all_launch_configurations(names=[launch_config_name])
         ag = AutoScalingGroup(
@@ -292,7 +291,7 @@ def main():
             state=dict(default='present', choices=['present', 'absent']),
             tags=dict(type='list', default=[]),
             health_check_period=dict(type='int', default=300),
-            health_check_type=dict(default='EC2', chices=['EC2', 'ELB']),
+            health_check_type=dict(default='EC2', choices=['EC2', 'ELB']),
         )
     )
     module = AnsibleModule(argument_spec=argument_spec)
