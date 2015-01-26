@@ -67,6 +67,11 @@ options:
       - List of VPC subnets to use
     required: false
     default: None
+  termination_policies:
+    description:
+      - list of string termination policies. Options: "OldestInstance", "NewestInstance", "OldestLaunchConfiguration", "ClosestToNextInstanceHour", "Default"
+    required: false
+    default: ['Default']
   tags:
     description:
       - A list of tags to add to the Auto Scale Group. Optional key is 'propagate_at_launch', which defaults to true.
@@ -127,7 +132,7 @@ except ImportError:
 
 ASG_ATTRIBUTES = ('launch_config_name', 'max_size', 'min_size', 'desired_capacity',
                      'vpc_zone_identifier', 'availability_zones',
-                     'health_check_period', 'health_check_type')
+                     'health_check_period', 'health_check_type', 'termination_policies')
 
 def enforce_required_arguments(module):
     ''' As many arguments are not required for autoscale group deletion
@@ -162,6 +167,7 @@ def create_autoscaling_group(connection, module):
     set_tags = module.params.get('tags')
     health_check_period = module.params.get('health_check_period')
     health_check_type = module.params.get('health_check_type')
+    termination_policies = module.params.get('termination_policies')
     
     as_groups = connection.get_all_groups(names=[group_name])
 
@@ -204,7 +210,8 @@ def create_autoscaling_group(connection, module):
                  connection=connection,
                  tags=asg_tags,
                  health_check_period=health_check_period,
-                 health_check_type=health_check_type)
+                 health_check_type=health_check_type,
+                 termination_policies=termination_policies)
 
         try:
             connection.create_auto_scaling_group(ag)
@@ -318,6 +325,7 @@ def main():
             tags=dict(type='list', default=[]),
             health_check_period=dict(type='int', default=300),
             health_check_type=dict(default='EC2', choices=['EC2', 'ELB']),
+            termination_policies=dict(type='list', default=['Default']),
         )
     )
     module = AnsibleModule(argument_spec=argument_spec)
