@@ -39,7 +39,7 @@ options:
         required: false
     namespace:
         description:
-          - Name of the appropriate namespace ('AWS/EC2', 'System/Linux', etc.), which determines the category it will appear under in cloudwatch
+          - Name of the appropriate namespace, which determines the category it will appear under in cloudwatch
         required: false
     statistic:
         description:
@@ -248,7 +248,7 @@ def main():
             name=dict(required=True, type='str'),
             metric=dict(type='str'),
             namespace=dict(type='str'),
-            statistic=dict(type='str', choices=['SampleCount', 'Average', 'Sum', 'Minimum', 'Maximum']),
+            statistic=dict(type='str'),
             comparison=dict(type='str', choices=['<=', '<', '>', '>=']),
             threshold=dict(type='float'),
             period=dict(type='int'),
