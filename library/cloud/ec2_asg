@@ -69,7 +69,7 @@ options:
     default: None
   termination_policies:
     description:
-      -  A list of termination policies. Valid values are: "OldestInstance", "NewestInstance", "OldestLaunchConfiguration", "ClosestToNextInstanceHour", "Default". If no value is specified, the "Default" value is used.
+      - list of string termination policies. Options: "OldestInstance", "NewestInstance", "OldestLaunchConfiguration", "ClosestToNextInstanceHour", "Default"
     required: false
     default: ['Default']
   tags:
