@@ -126,7 +126,7 @@ except ImportError:
 
 ASG_ATTRIBUTES = ('launch_config_name', 'max_size', 'min_size', 'desired_capacity',
                      'vpc_zone_identifier', 'availability_zones',
-                     'health_check_period', 'health_check_type')
+                     'health_check_period', 'health_check_type', 'termination_policies')
 
 def enforce_required_arguments(module):
     ''' As many arguments are not required for autoscale group deletion
