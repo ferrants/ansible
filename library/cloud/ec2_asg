@@ -68,7 +68,7 @@ options:
       - Number of instances you'd like to replace at a time.  Used with replace_all_instances.
     required: false
     version_added: "1.8"
-    default: 1  
+    default: 1
   replace_instances:
     description:
       - List of instance_ids belonging to the named ASG that you would like to terminate and be replaced with instances matching the current launch configuration.
@@ -136,9 +136,9 @@ EXAMPLES = '''
 
 # Rolling ASG Updates
 
-Below is an example of how to assign a new launch config to an ASG and terminate old instances.  
+Below is an example of how to assign a new launch config to an ASG and terminate old instances.
 
-All instances in "myasg" that do not have the launch configuration named "my_new_lc" will be terminated in 
+All instances in "myasg" that do not have the launch configuration named "my_new_lc" will be terminated in
 a rolling fashion with instances using the current launch configuration, "my_new_lc".
 
 This could also be considered a rolling deploy of a pre-baked AMI.
@@ -267,7 +267,7 @@ def create_autoscaling_group(connection, module):
     set_tags = module.params.get('tags')
     health_check_period = module.params.get('health_check_period')
     health_check_type = module.params.get('health_check_type')
-    
+
     as_groups = connection.get_all_groups(names=[group_name])
 
     if not vpc_zone_identifier and not availability_zones:
@@ -416,6 +416,7 @@ def get_chunks(l, n):
 def replace(connection, module):
 
     batch_size = module.params.get('replace_batch_size')
+    batch_timeout = module.params.get('replace_batch_timeout')
     wait_timeout = module.params.get('wait_timeout')
     group_name = module.params.get('name')
     max_size =  module.params.get('max_size')
@@ -424,7 +425,7 @@ def replace(connection, module):
 
     # FIXME: we need some more docs about this feature
     replace_instances = module.params.get('replace_instances')
-    
+
     # wait for instance list to be populated on a newly provisioned ASG
     instance_wait = time.time() + 30
     while instance_wait > time.time():
@@ -448,7 +449,7 @@ def replace(connection, module):
     if replaceable == 0:
         changed = False
         return(changed, props)
-        
+
     # set temporary settings and wait for them to be reached
     as_group.max_size = max_size + batch_size
     as_group.min_size = min_size + batch_size
@@ -467,11 +468,13 @@ def replace(connection, module):
     if replace_instances:
         instances = replace_instances
     for i in get_chunks(instances, batch_size):
+        if i != 0:
+            time.sleep(batch_timeout)
         replace_batch(connection, module, i)
     # return settings to normal
     as_group = connection.get_all_groups(names=[group_name])[0]
-    as_group.max_size = max_size 
-    as_group.min_size = min_size 
+    as_group.max_size = max_size
+    as_group.min_size = min_size
     as_group.desired_capacity = desired_capacity
     as_group.update()
     as_group = connection.get_all_groups(names=[group_name])[0]
@@ -480,8 +483,8 @@ def replace(connection, module):
     return(changed, asg_properties)
 
 def replace_batch(connection, module, replace_instances):
-    
-    
+
+
     group_name = module.params.get('name')
     wait_timeout = int(module.params.get('wait_timeout'))
     lc_check = module.params.get('lc_check')
@@ -504,7 +507,7 @@ def replace_batch(connection, module, replace_instances):
     # set all instances given to unhealthy
     for instance_id in old_instances:
         connection.set_instance_health(instance_id,'Unhealthy')
-    
+
     # we wait to make sure the machines we marked as Unhealthy are
     # no longer in the list
 
@@ -561,6 +564,7 @@ def main():
             desired_capacity=dict(type='int'),
             vpc_zone_identifier=dict(type='list'),
             replace_batch_size=dict(type='int', default=1),
+            replace_batch_timeout=dict(type='int', default=0),
             replace_all_instances=dict(type='bool', default=False),
             replace_instances=dict(type='list', default=[]),
             lc_check=dict(type='bool', default=True),
@@ -571,9 +575,9 @@ def main():
             health_check_type=dict(default='EC2', choices=['EC2', 'ELB']),
         ),
     )
-    
+
     module = AnsibleModule(
-        argument_spec=argument_spec, 
+        argument_spec=argument_spec,
         mutually_exclusive = [['replace_all_instances', 'replace_instances']]
     )
 
@@ -588,7 +592,7 @@ def main():
     except boto.exception.NoAuthHandlerFound, e:
         module.fail_json(msg=str(e))
     changed = create_changed = replace_changed = False
-    
+
 
     if state == 'present':
         create_changed, asg_properties=create_autoscaling_group(connection, module)
