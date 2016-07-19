@@ -242,6 +242,7 @@ populates the callback with them.  Here's a short snippet that shows you how::
             self.playbook_name = None
             self.play = None
             self.task = None
+            super(CallbackModule, self).__init__()
 
         def v2_playbook_on_start(self, playbook):
             self.playbook = playbook
@@ -295,7 +296,7 @@ As a simple example we are going to make a hybrid ``fileglob`` lookup plugin.  T
     import os
     import glob
 
-    try:
+    try:c
         # ansible-2.0
         from ansible.plugins.lookup import LookupBase
     except ImportError:
