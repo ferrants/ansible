@@ -296,7 +296,7 @@ As a simple example we are going to make a hybrid ``fileglob`` lookup plugin.  T
     import os
     import glob
 
-    try:c
+    try:
         # ansible-2.0
         from ansible.plugins.lookup import LookupBase
     except ImportError:
